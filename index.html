@@ -49,9 +49,10 @@
 </head>
 <body>
     
+  <!-- LAYAR LOGIN (Overlay) -->
   <div id="login-screen">
     <div id="login-box">
-        <h2>Selamat Datang</h2>
+        <h2>Selamat Datang di TokoMiken</h2>
         <p class="lead">Silakan masukkan ID Akun Anda</p>
         <input type="text" id="user-id-input" placeholder="Masukkan ID Akun Anda (contoh: rian01)">
         <button class="btn" id="login-btn">Masuk / Buat Akun</button>
@@ -59,13 +60,14 @@
     </div>
   </div>
 
+  <!-- KONTEN UTAMA TOKO -->
   <div class="container" id="main-content" style="display: none;">
     <header>
       <div class="brand">
         <div class="logo">DR</div>
         <div>
           <h1>Toko Pulsa</h1>
-          <p class="lead">ID Akun: <span id="current-user-id"></span></p>
+          <p class="lead">ID Akun: <span id="current-user-id">Memuat...</span></p>
         </div>
       </div>
       <div style="text-align:right">
@@ -74,10 +76,11 @@
       </div>
     </header>
 
+    <!-- Kartu saldo dan topup -->
     <section>
       <div class="card" style="text-align:center">
         <h3>Kelola Saldo Kamu</h3>
-        <p style="color:var(--muted);font-size:14px">Gunakan saldo untuk pembelian pulsa lebih cepat.</p>
+        <p style="color:var(--muted);font-size:14px">Saldo kini disimpan di database pusat! Admin bisa melihat akun Anda.</p>
         <button class="btn" id="topup">💳 Top Up Saldo</button>
       </div>
     </section>
@@ -86,6 +89,7 @@
       <h2 style="margin:20px 0 8px 0">Pilih Paket Pulsa</h2>
       <div class="grid" id="products">
 
+        <!-- Produk Pulsa -->
         <div class="card" data-op="Telkomsel" data-denom="5.000" data-price="6000">
           <div class="operator">Telkomsel</div>
           <div class="denom">Rp 5.000</div>
@@ -104,92 +108,109 @@
     </section>
 
     <footer>
-      <div>Petunjuk: Saldo akun ini disimpan di browser Anda.</div>
+      <div>Petunjuk: Data saldo akun ini disimpan di Cloud Firestore (database online).</div>
       <div style="margin-top:8px">© 2025 DigitalRian — Layanan Pulsa Online</div>
     </footer>
   </div>
 
-  <script>
+  <script type="module">
+    // --- INTEGRASI FIREBASE (START) ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
+    
+    // KODE KONFIGURASI FIREBASE ANDA
+    const firebaseConfig = {
+      apiKey: "AIzaSyBj1P1BlyVgusvpVJ_5TcJdqnffVm6In6E",
+      authDomain: "tokomiken-6fc10.firebaseapp.com",
+      projectId: "tokomiken-6fc10",
+      storageBucket: "tokomiken-6fc10.firebasestorage.app",
+      messagingSenderId: "454827178083",
+      appId: "1:454827178083:web:c83c3627d60942d5af2056",
+      measurementId: "G-18DVM3HBNY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    const ACCOUNTS_COLLECTION = 'accounts'; 
+    // --- INTEGRASI FIREBASE (END) ---
+
+    
     const sellerWA = "6285340725780";
     let currentUserID = null;
     let saldo = 0;
 
-    // Kunci di localStorage yang menyimpan semua data saldo akun
-    const STORAGE_KEY = 'digitalrian_accounts'; 
-
-    // Muat data akun dari localStorage
-    function loadAccounts() {
+    async function loadUserBalance(userID) {
         try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-        } catch (e) {
-            console.error("Gagal memuat akun:", e);
-            return {};
+            const docRef = doc(db, ACCOUNTS_COLLECTION, userID);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                saldo = docSnap.data().saldo || 0;
+            } else {
+                await setDoc(docRef, { saldo: 0 });
+                saldo = 0;
+                console.log(`Akun baru ${userID} berhasil dibuat.`);
+            }
+
+            document.getElementById("saldo").innerText = saldo.toLocaleString("id-ID");
+            document.getElementById("current-user-id").innerText = userID;
+            sessionStorage.setItem('currentUserID', userID);
+            return true;
+        } catch (error) {
+            console.error("Gagal memuat saldo dari Firebase:", error);
+            alert("Gagal terhubung ke database. Cek koneksi internet Anda atau perbaiki aturan Firebase.");
+            return false;
         }
     }
 
-    // Simpan data akun ke localStorage
-    function saveAccounts(accounts) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
-    }
-
-    // Fungsi untuk memuat saldo user saat ini
-    function loadUserBalance(userID) {
-        const accounts = loadAccounts();
-        // Dapatkan saldo user. Jika belum ada, inisialisasi 0
-        saldo = accounts[userID] !== undefined ? accounts[userID] : 0;
-        document.getElementById("saldo").innerText = saldo.toLocaleString("id-ID");
-        document.getElementById("current-user-id").innerText = userID;
-        
-        // Simpan ID user yang sedang aktif di session storage (untuk sesi ini)
-        sessionStorage.setItem('currentUserID', userID);
-    }
-
-    // Fungsi untuk menyimpan saldo user saat ini
-    function saveUserBalance() {
-        const accounts = loadAccounts();
-        accounts[currentUserID] = saldo;
-        saveAccounts(accounts);
-        document.getElementById("saldo").innerText = saldo.toLocaleString("id-ID");
+    async function saveUserBalance() {
+        if (!currentUserID) return;
+        try {
+            const docRef = doc(db, ACCOUNTS_COLLECTION, currentUserID);
+            await setDoc(docRef, { saldo: saldo }, { merge: true });
+            document.getElementById("saldo").innerText = saldo.toLocaleString("id-ID");
+        } catch (error) {
+            console.error("Gagal menyimpan saldo ke Firebase:", error);
+        }
     }
 
     // ---- Event Listeners ----
 
-    document.getElementById("login-btn").onclick = () => {
+    document.getElementById("login-btn").onclick = async () => {
         const userID = document.getElementById("user-id-input").value.trim();
         if (userID.length < 3) {
             return alert("ID Akun harus diisi minimal 3 karakter.");
         }
         
         currentUserID = userID;
-        loadUserBalance(currentUserID); // Muat saldo akun yang baru atau yang sudah ada
+        const success = await loadUserBalance(currentUserID); 
 
-        document.getElementById("login-screen").style.display = 'none';
-        document.getElementById("main-content").style.display = 'block';
+        if (success) {
+            document.getElementById("login-screen").style.display = 'none';
+            document.getElementById("main-content").style.display = 'block';
+        }
     }
 
     document.getElementById("logout-btn").onclick = () => {
-        saveUserBalance(); // Pastikan saldo terakhir disimpan
-        sessionStorage.removeItem('currentUserID'); // Hapus sesi aktif
-        location.reload(); // Muat ulang halaman untuk kembali ke layar login
+        sessionStorage.removeItem('currentUserID'); 
+        location.reload(); 
     }
 
-    // Cek apakah ada sesi aktif saat halaman dimuat
     const savedUserID = sessionStorage.getItem('currentUserID');
     if (savedUserID) {
-        document.getElementById("user-id-input").value = savedUserID; // Isi input
-        document.getElementById("login-btn").click(); // Otomatis login
+        document.getElementById("user-id-input").value = savedUserID;
+        document.getElementById("login-btn").click();
     }
 
-    // Tombol Top Up
     document.getElementById("topup").onclick = () => {
         const pesan = `Halo, saya (${currentUserID}) ingin top up saldo di Toko Pulsa DigitalRian.`;
         const url = `https://wa.me/${sellerWA}?text=${encodeURIComponent(pesan)}`;
         window.location.href = url;
     }
 
-    // Fungsi pembelian pulsa
     document.querySelectorAll(".buy").forEach(btn => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         const card = btn.closest(".card");
         const operator = card.getAttribute("data-op");
         const denom = card.getAttribute("data-denom");
@@ -204,11 +225,9 @@
         let tujuan = prompt("Masukkan nomor tujuan pulsa (contoh: 0812xxxx):");
         if(!tujuan) return alert("Nomor tujuan wajib diisi!");
 
-        // 1. Potong Saldo dan Simpan
         saldo -= price;
-        saveUserBalance(); // Simpan saldo yang sudah terpotong
+        await saveUserBalance(); 
 
-        // 2. Kirim pesan konfirmasi ke WhatsApp
         const pesan = 
 `[PEMBELIAN PULSA]
 ID Akun: ${currentUserID}
@@ -217,7 +236,7 @@ Kode: ${code}
 Harga: Rp ${price.toLocaleString("id-ID")}
 Nomor Tujuan: ${tujuan}
 
-Saldo saya telah dipotong otomatis. Mohon diproses.`;
+Saldo telah dipotong dari database pusat TokoMiken. Mohon diproses.`;
 
         const url = `https://wa.me/${sellerWA}?text=${encodeURIComponent(pesan)}`;
         window.location.href = url;
@@ -226,3 +245,4 @@ Saldo saya telah dipotong otomatis. Mohon diproses.`;
   </script>
 </body>
 </html>
+
