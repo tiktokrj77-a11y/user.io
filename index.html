@@ -1,60 +1,64 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Rian Store — Toko Pulsa</title>
 <style>
 :root{
   --bg:#f7f8fb; --card:#fff; --accent:#0b84ff; --accent-600:#0666d8; --muted:#6b7280;
   --success:#16a34a; --danger:#dc2626;
-  --shadow: 0 8px 24px rgba(16,24,40,0.06);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --shadow:0 8px 24px rgba(16,24,40,0.06);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
 }
-*{box-sizing:border-box;}
-body{margin:0;background:var(--bg);color:#111827;-webkit-font-smoothing:antialiased;}
-.container{max-width:980px;margin:28px auto;padding:20px;}
-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
-.brand{display:flex;gap:12px;align-items:center;}
-.logo-wrap{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#3ddc97);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;box-shadow:0 6px 18px rgba(11,132,255,0.12);}
-h1{margin:0;font-size:20px;}
-p.lead{margin:2px 0 0;color:var(--muted);font-size:13px;}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:12px;}
-.card{background:var(--card);border-radius:12px;padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;}
-.operator{font-weight:700;}
-.denom{font-size:18px;font-weight:700;}
-.small{font-size:13px;color:var(--muted);}
-.btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:white;font-weight:600;cursor:pointer;border:none;text-align:center;}
-.btn.secondary{background:#eef6ff;color:var(--accent-600);}
-footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center;}
-.tag{background:#eef6ff;color:var(--accent);padding:6px 10px;border-radius:999px;font-size:13px;font-weight:600;}
-#auth-screen {position: fixed; inset:0; display:flex;align-items:center;justify-content:center;background:rgba(12,18,30,0.04);padding:16px;z-index:100;}
-#auth-box{width:100%;max-width:520px;background:var(--card);border-radius:12px;padding:22px;box-shadow:var(--shadow);}
-.row{display:flex;gap:10px;}
-input[type="text"], input[type="email"], input[type="password"], input[type="tel"]{width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;}
-.muted{font-size:13px;color:var(--muted);}
-.switch-link{color:var(--accent);cursor:pointer;font-size:13px;margin-top:10px;display:inline-block;}
-.help-link{color:var(--accent);font-size:13px;text-decoration:underline;cursor:pointer;display:block;margin-top:8px;}
-.toast{position:fixed;right:20px;bottom:24px;padding:12px 16px;border-radius:10px;color:white;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:9999;}
-.toast.success{background:var(--success);}
-.toast.error{background:var(--danger);}
-.top-actions{display:flex;gap:8px;align-items:center;}
-@media (max-width:560px){
-  header{padding:0 12px;}
-  .logo-wrap{width:48px;height:48px;}
-  #auth-box{padding:16px;}
-}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#111827;-webkit-font-smoothing:antialiased}
+.container{max-width:980px;margin:28px auto;padding:20px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo-wrap{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#3ddc97);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;box-shadow:0 6px 18px rgba(11,132,255,0.12)}
+h1{margin:0;font-size:20px}
+p.lead{margin:2px 0 0;color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:12px}
+.card{background:var(--card);border-radius:12px;padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.operator{font-weight:700}
+.denom{font-size:18px;font-weight:700}
+.small{font-size:13px;color:var(--muted)}
+.btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:white;font-weight:600;cursor:pointer;border:none;text-align:center}
+.btn.secondary{background:#eef6ff;color:var(--accent-600)}
+footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+.tag{background:#eef6ff;color:var(--accent);padding:6px 10px;border-radius:999px;font-size:13px;font-weight:600}
+#auth-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(12,18,30,0.04);padding:16px;z-index:100;}
+#auth-box{width:100%;max-width:520px;background:var(--card);border-radius:12px;padding:22px;box-shadow:var(--shadow)}
+.row{display:flex;gap:10px}
+input[type="text"],input[type="email"],input[type="password"],input[type="tel"]{width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px}
+.muted{font-size:13px;color:var(--muted)}
+.switch-link{color:var(--accent);cursor:pointer;font-size:13px;margin-top:10px;display:inline-block}
+.help-link{color:var(--accent);font-size:13px;text-decoration:underline;cursor:pointer;display:block;margin-top:8px}
+.toast{position:fixed;right:20px;bottom:24px;padding:12px 16px;border-radius:10px;color:white;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:9999}
+.toast.success{background:var(--success)}
+.toast.error{background:var(--danger)}
+.top-actions{display:flex;gap:8px;align-items:center}
+@media(max-width:560px){header{padding:0 12px}.logo-wrap{width:48px;height:48px}#auth-box{padding:16px}}
 </style>
 </head>
 <body>
-<div id="auth-screen">
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" aria-hidden="false">
   <div id="auth-box">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="display:flex;gap:12px;align-items:center">
         <div class="logo-wrap">RS</div>
-        <div><div style="font-weight:700">Rian Store</div></div>
+        <div>
+          <div style="font-weight:700">Rian Store</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn secondary" id="demo-fill">Demo</button>
       </div>
     </div>
+
     <div id="login-form">
       <div style="margin-bottom:8px"><strong>Masuk</strong></div>
       <input type="text" id="login-key" placeholder="ID Akun atau Email" />
@@ -67,39 +71,49 @@ input[type="text"], input[type="email"], input[type="password"], input[type="tel
       <a id="forgot-account" class="help-link">Lupa Akun?</a>
       <p class="switch-link" id="to-register">Belum punya akun? Daftar sekarang</p>
     </div>
+
     <div id="register-form" style="display:none">
       <div style="margin-bottom:8px"><strong>Daftar Akun Baru</strong></div>
       <input type="text" id="reg-name" placeholder="Nama Lengkap" />
       <input type="email" id="reg-email" placeholder="Email" style="margin-top:8px"/>
-      <input type="tel" id="reg-wa" placeholder="Nomor WhatsApp" style="margin-top:8px"/>
-      <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-        <input type="password" id="reg-pass" placeholder="Password" />
-        <input type="password" id="reg-pass2" placeholder="Ulangi Password" />
-      </div>
+      <input type="tel" id="reg-wa" placeholder="Nomor WhatsApp (contoh: 0853xxxxxxx)" style="margin-top:8px"/>
+      <input type="password" id="reg-pass" placeholder="Password" style="margin-top:8px"/>
+      <input type="password" id="reg-pass2" placeholder="Ulangi Password" style="margin-top:8px"/>
       <div style="display:flex;gap:8px;margin-top:8px">
         <button class="btn secondary" id="toggle-reg-pass">Tampilkan Sandi</button>
         <button class="btn" id="register-btn">Daftar Akun Baru</button>
       </div>
       <p class="switch-link" id="to-login" style="margin-top:10px">Sudah punya akun? Masuk</p>
-      <p class="muted" style="margin-top:6px">Email harus valid. WA mulai 08 dan minimal 10 digit.</p>
+      <p class="muted" style="margin-top:6px">Validasi: email harus benar, WA mulai dengan <code>08</code> & minimal 10 digit.</p>
     </div>
   </div>
 </div>
 
+<!-- MAIN CONTENT -->
 <div class="container" id="main-content" style="display:none">
   <header>
     <div class="brand">
       <div class="logo-wrap">RS</div>
       <div>
         <h1>Rian Store</h1>
-        <p class="lead" id="header-welcome">Halo, <span id="current-user-id">Memuat...</span>!!</p>
+        <p class="lead" id="header-welcome">Halo, <span id="current-user-name">Memuat...</span>!</p>
       </div>
     </div>
     <div style="text-align:right">
       <div class="tag">Saldo Anda: Rp <span id="saldo">0</span></div>
-      <div style="margin-top:8px"><button class="btn secondary" id="logout-btn">Keluar</button></div>
+      <div style="margin-top:8px">
+        <button class="btn secondary" id="logout-btn">Keluar</button>
+      </div>
     </div>
   </header>
+
+  <section>
+    <div class="card" style="text-align:center">
+      <h3>Kelola Saldo Kamu</h3>
+      <p class="muted">Saldo disimpan di database pusat. Klik Top Up untuk menghubungi admin.</p>
+      <button class="btn" id="topup">💳 Top Up Saldo</button>
+    </div>
+  </section>
 
   <section>
     <h2 style="margin:20px 0 8px 0">Pilih Paket Pulsa</h2>
@@ -107,159 +121,167 @@ input[type="text"], input[type="email"], input[type="password"], input[type="tel
   </section>
 
   <footer>
-    <div class="muted">Data saldo akun dan produk disimpan di Cloud Firestore.</div>
-    <div style="margin-top:8px">© 2025 Rian Store</div>
+    <div class="muted">Petunjuk: Data saldo akun disimpan di Cloud Firestore (database online).</div>
+    <div style="margin-top:8px">© 2025 Rian Store — Layanan Pulsa Online</div>
   </footer>
 </div>
 
 <div id="toast-area"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// --- FIREBASE CONFIG ---
+// Config Firebase
 const firebaseConfig = {
-  apiKey: "API_KEY_ANDA",
-  authDomain: "PROJECT_ID.firebaseapp.com",
-  projectId: "PROJECT_ID",
-  storageBucket: "PROJECT_ID.appspot.com",
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
   messagingSenderId: "SENDER_ID",
   appId: "APP_ID"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const ACCOUNTS="accounts";
-const PRODUCTS="products";
-const sellerWA="6285340725780";
+// Constants
+const ACCOUNTS = "accounts";
+const PRODUCTS = "products";
+const sellerWA = "6285340725780"; // Nomor admin
 
-let currentUserID=null;
-let saldo=0;
+// Global state
+let currentUser = null;
 
-// --- TOAST ---
-function showToast(msg,type="success",time=3000){
-  const div=document.createElement("div");
+// Toast function
+function showToast(msg, type="success"){
+  const div = document.createElement("div");
   div.className="toast "+(type==="error"?"error":"success");
-  div.innerText=msg; document.body.appendChild(div);
-  setTimeout(()=>div.style.opacity="1",50);
-  setTimeout(()=>{div.style.opacity="0"; setTimeout(()=>div.remove(),300)},time);
+  div.innerText=msg;
+  document.body.appendChild(div);
+  setTimeout(()=>div.remove(),3500);
 }
 
-// --- USER FUNCTIONS ---
-async function loadUserByID(userID){ const d=await getDoc(doc(db,ACCOUNTS,userID)); return d.exists()?{id:userID,...d.data()}:null; }
-async function loadUserByField(field,value){ const col=collection(db,ACCOUNTS); const q=query(col,where(field,"==",value)); const snap=await getDocs(q); return snap.empty?null:{id:snap.docs[0].id,...snap.docs[0].data()}; }
-async function saveUser(userID,data){ await setDoc(doc(db,ACCOUNTS,userID),data,{merge:true}); }
+// UI helpers
+function showMain(){ document.getElementById("auth-screen").style.display="none"; document.getElementById("main-content").style.display="block"; }
+function showAuth(){ document.getElementById("auth-screen").style.display="flex"; document.getElementById("main-content").style.display="none"; }
 
-function sanitizeName(name){ return (name||"user").trim().toLowerCase().replace(/\s+/g,"").replace(/[^a-z0-9\-]/g,""); }
-async function createUniqueIDFromName(name){ const base=sanitizeName(name)||"user"; if(!(await loadUserByID(base))) return base; for(let i=1;i<=9999;i++){ const c=base+"-"+i; if(!(await loadUserByID(c))) return c;} return base+"-"+Date.now(); }
+// Demo fill
+document.getElementById("demo-fill").onclick=()=>{
+  document.getElementById("reg-name").value="Rian Store";
+  document.getElementById("reg-email").value="rian@example.com";
+  document.getElementById("reg-wa").value="085340725780";
+  document.getElementById("reg-pass").value="rahasia123";
+  document.getElementById("reg-pass2").value="rahasia123";
+  showToast("Contoh data diisi");
+}
 
-function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
-function isValidWA(w){ return /^08\d{8,}$/.test(w.replace(/\s+/g,"")); }
+// Toggle login/register
+document.getElementById("to-register").onclick=()=>{document.getElementById("login-form").style.display="none"; document.getElementById("register-form").style.display="block";}
+document.getElementById("to-login").onclick=()=>{document.getElementById("register-form").style.display="none"; document.getElementById("login-form").style.display="block";}
 
-// --- EVENTS ---
-document.getElementById("toggle-login-pass").onclick=()=>{ const p=document.getElementById("login-pass"); p.type=p.type==="password"?"text":"password"; document.getElementById("toggle-login-pass").innerText=p.type==="password"?"Tampilkan":"Sembunyikan"; };
-document.getElementById("toggle-reg-pass").onclick=()=>{ const p1=document.getElementById("reg-pass"),p2=document.getElementById("reg-pass2"); const s=p1.type==="text"; p1.type=p2.type=s?"password":"text"; document.getElementById("toggle-reg-pass").innerText=s?"Tampilkan Sandi":"Sembunyikan Sandi"; };
-document.getElementById("to-register").onclick=()=>{ document.getElementById("login-form").style.display="none"; document.getElementById("register-form").style.display="block"; };
-document.getElementById("to-login").onclick=()=>{ document.getElementById("register-form").style.display="none"; document.getElementById("login-form").style.display="block"; };
+// Toggle password
+document.getElementById("toggle-login-pass").onclick=()=>{
+  const p=document.getElementById("login-pass");
+  p.type = p.type==="password"?"text":"password";
+  document.getElementById("toggle-login-pass").innerText=p.type==="password"?"Tampilkan":"Sembunyikan";
+}
+document.getElementById("toggle-reg-pass").onclick=()=>{
+  const p1=document.getElementById("reg-pass"); const p2=document.getElementById("reg-pass2");
+  const show=p1.type==="password";
+  p1.type=p2.type=show?"text":"password";
+  document.getElementById("toggle-reg-pass").innerText=show?"Sembunyikan Sandi":"Tampilkan Sandi";
+}
 
-// --- REGISTER ---
+// Login & register handlers
 document.getElementById("register-btn").onclick=async()=>{
   const name=document.getElementById("reg-name").value.trim();
   const email=document.getElementById("reg-email").value.trim().toLowerCase();
   const wa=document.getElementById("reg-wa").value.trim();
   const pass1=document.getElementById("reg-pass").value;
   const pass2=document.getElementById("reg-pass2").value;
-  if(!name||!email||!wa||!pass1||!pass2){ showToast("Semua kolom wajib diisi.","error"); return; }
-  if(!isValidEmail(email)){ showToast("Email tidak valid.","error"); return; }
-  if(!isValidWA(wa)){ showToast("Nomor WA salah.","error"); return; }
-  if(pass1!==pass2){ showToast("Password tidak cocok.","error"); return; }
-  if(await loadUserByField("email",email)){ showToast("Email sudah terdaftar.","error"); return; }
-  const id=await createUniqueIDFromName(name);
-  await saveUser(id,{id_akun:id,name,email,wa,password:pass1,saldo:0,createdAt:new Date().toISOString()});
-  showToast("Akun berhasil dibuat. ID:"+id); document.getElementById("to-login").click();
-  document.getElementById("login-key").value=id;
-};
+  if(!name||!email||!wa||!pass1||!pass2){showToast("Semua kolom wajib diisi","error");return;}
+  if(pass1!==pass2){showToast("Password tidak sama","error");return;}
+  if(!/^08\d{8,}$/.test(wa)){showToast("Nomor WA tidak valid","error");return;}
+  // Cek email sudah ada
+  const col=collection(db,ACCOUNTS);
+  const q=query(col,where("email","==",email));
+  const snap=await getDocs(q);
+  if(!snap.empty){showToast("Email sudah terdaftar","error");return;}
+  // Simpan
+  const newUserID = "user_"+Date.now();
+  await setDoc(doc(db,ACCOUNTS,newUserID),{name,email,wa,pass:pass1,saldo:0});
+  showToast("Akun berhasil dibuat!","success");
+  document.getElementById("to-login").click();
+}
 
-// --- LOGIN ---
+// Login handler
 document.getElementById("login-btn").onclick=async()=>{
   const key=document.getElementById("login-key").value.trim();
   const pass=document.getElementById("login-pass").value;
-  if(!key||!pass){ showToast("Isi ID/Email & password.","error"); return; }
-  let user=await loadUserByID(key); if(!user) user=await loadUserByField("email",key.toLowerCase());
-  if(!user){ showToast("Akun tidak ditemukan.","error"); return; }
-  if(user.password!==pass){ showToast("Password salah.","error"); return; }
-  currentUserID=user.id; saldo=user.saldo||0;
-  document.getElementById("current-user-id").innerText=currentUserID;
-  document.getElementById("saldo").innerText=saldo.toLocaleString("id-ID");
-  localStorage.setItem("rs_currentUserID",currentUserID);
-  document.getElementById("auth-screen").style.display="none"; document.getElementById("main-content").style.display="block";
-  showToast("Selamat datang, "+(user.name||currentUserID)+"!");
-  startProductsListener();
-  startSaldoListener();
-};
-
-// --- AUTO LOGIN ---
-(async function(){
-  const saved=localStorage.getItem("rs_currentUserID");
-  if(!saved) return;
-  const u=await loadUserByID(saved); if(!u){ localStorage.removeItem("rs_currentUserID"); return; }
-  currentUserID=saved; saldo=u.saldo||0;
-  document.getElementById("current-user-id").innerText=currentUserID;
-  document.getElementById("saldo").innerText=saldo.toLocaleString("id-ID");
-  document.getElementById("auth-screen").style.display="none"; document.getElementById("main-content").style.display="block";
-  startProductsListener();
-  startSaldoListener();
-})();
-
-// --- LOGOUT ---
-document.getElementById("logout-btn").onclick=()=>{ localStorage.removeItem("rs_currentUserID"); location.reload(); };
-
-// --- BUY BUTTON ---
-function attachBuyHandlers(){
-  document.querySelectorAll(".buy").forEach(btn=>{
-    btn.onclick=()=>{
-      const card=btn.closest(".card");
-      const price=Number(card.getAttribute("data-price")||0);
-      const denom=card.getAttribute("data-denom");
-      if(price>saldo){ showToast("Saldo tidak cukup!","error"); return; }
-      if(confirm(`Beli pulsa Rp ${Number(denom).toLocaleString()} seharga Rp ${Number(price).toLocaleString()}?`)){
-        saldo-=price; document.getElementById("saldo").innerText=saldo.toLocaleString("id-ID");
-        saveUser(currentUserID,{saldo});
-        const waLink=`https://wa.me/${sellerWA}?text=${encodeURIComponent(`Halo, saya ingin membeli pulsa ${denom}. ID:${currentUserID}`)}`;
-        window.open(waLink,"_blank");
-        showToast("Transaksi berhasil, WA dibuka.","success");
-      }
-    };
-  });
+  if(!key||!pass){showToast("Isi semua kolom","error");return;}
+  const col=collection(db,ACCOUNTS);
+  let snap;
+  if(key.includes("@")){ snap=await getDocs(query(col,where("email","==",key))); }
+  else{ snap=await getDocs(query(col,where("id","==",key))); }
+  if(snap.empty){showToast("Akun tidak ditemukan","error");return;}
+  const docSnap = snap.docs[0]; const data = docSnap.data();
+  if(data.pass!==pass){showToast("Password salah","error");return;}
+  currentUser={id:docSnap.id,...data};
+  document.getElementById("current-user-name").innerText=currentUser.name;
+  document.getElementById("saldo").innerText=currentUser.saldo;
+  showMain();
+  subscribeSaldo();
 }
 
-// --- PRODUCTS LISTENER ---
-function startProductsListener(){
-  const productsDiv=document.getElementById("products");
-  const col=collection(db,PRODUCTS);
-  onSnapshot(col,(snap)=>{
-    productsDiv.innerHTML="";
-    snap.forEach(doc=>{
-      const d=doc.data();
-      const card=document.createElement("div");
-      card.className="card"; card.setAttribute("data-op",d.operator); card.setAttribute("data-denom",d.denom); card.setAttribute("data-price",d.price);
-      card.innerHTML=`<div class="operator">${d.operator}</div><div class="denom">Rp ${Number(d.denom).toLocaleString()}</div><div class="small">Kode: ${d.code}</div><button class="btn buy">Beli Sekarang</button>`;
-      productsDiv.appendChild(card);
-    });
-    attachBuyHandlers();
-  });
+// Logout
+document.getElementById("logout-btn").onclick=()=>{
+  currentUser=null;
+  showAuth();
 }
 
-// --- SALDO LISTENER ---
-function startSaldoListener(){
-  if(!currentUserID) return;
-  const docRef=doc(db,ACCOUNTS,currentUserID);
+// Subscribe saldo live update
+function subscribeSaldo(){
+  const docRef=doc(db,ACCOUNTS,currentUser.id);
   onSnapshot(docRef,(snap)=>{
-    if(snap.exists()){ saldo=snap.data().saldo||0; document.getElementById("saldo").innerText=saldo.toLocaleString("id-ID"); }
+    if(snap.exists()){
+      currentUser=snap.data();
+      document.getElementById("saldo").innerText=currentUser.saldo;
+    }
   });
 }
+
+// Topup WA
+document.getElementById("topup").onclick=()=>{
+  if(!currentUser){showToast("Login dulu","error");return;}
+  window.open(`https://wa.me/${sellerWA}?text=Halo%20Admin,%20saya%20ingin%20topup%20saldo.%20ID:%20${currentUser.id}`,"_blank");
+}
+
+// Load products
+async function loadProducts(){
+  const col=collection(db,PRODUCTS);
+  const snap=await getDocs(col);
+  const container=document.getElementById("products");
+  container.innerHTML="";
+  snap.forEach(doc=>{
+    const p=doc.data();
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`<div class="operator">${p.operator}</div><div class="denom">Rp ${p.price}</div><div class="small">${p.desc||""}</div><button class="btn buy-btn">Beli</button>`;
+    card.querySelector(".buy-btn").onclick=()=>buyProduct(doc.id,p);
+    container.appendChild(card);
+  });
+}
+
+// Buy product
+function buyProduct(productID,p){
+  if(!currentUser){showToast("Login dulu","error");return;}
+  if(currentUser.saldo<p.price){showToast("Saldo tidak cukup","error");return;}
+  setDoc(doc(db,ACCOUNTS,currentUser.id),{saldo:currentUser.saldo-p.price},{merge:true});
+  showToast(`Berhasil beli pulsa ${p.operator} Rp ${p.price}`);
+}
+
+loadProducts();
+
 </script>
 </body>
 </html>
