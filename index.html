@@ -28,21 +28,55 @@ button{padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:600
 .btn-danger{background:var(--danger);color:white}
 .balance{font-weight:700;color:var(--accent);font-size:18px}
 .hidden{display:none}
+
+/* Modern modal */
+.modal{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.4);
+  display:none;align-items:center;justify-content:center;
+  z-index:100;
+}
+.modal-content{
+  background:var(--card);
+  padding:20px;border-radius:16px;
+  width:90%;max-width:360px;
+  box-shadow:var(--shadow);
+  animation:popIn .25s ease;
+}
+@keyframes popIn{
+  from{transform:translateY(20px);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+.modal h3{text-align:center;color:var(--accent);margin-bottom:12px}
+.modal .close-btn{background:#eee;color:#333}
 </style>
 </head>
 <body>
 
+<!-- LOGIN / REGISTER -->
 <div class="container" id="login-screen">
-  <div class="card">
+  <div class="card" id="login-card">
     <h2>Masuk ke Rian Store</h2>
-    <input type="text" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
+    <input type="text" id="login-identifier" placeholder="Nama atau Email">
+    <input type="password" id="login-password" placeholder="Password">
     <button class="btn-primary" id="login-btn">Masuk</button>
     <p>Belum punya akun?</p>
-    <button class="btn-secondary" id="register-btn">Daftar</button>
+    <button class="btn-secondary" id="show-register">Daftar</button>
+  </div>
+
+  <div class="card hidden" id="register-card">
+    <h2>Daftar Akun Baru</h2>
+    <input type="text" id="reg-name" placeholder="Nama Lengkap">
+    <input type="email" id="reg-email" placeholder="Email">
+    <input type="text" id="reg-wa" placeholder="Nomor WhatsApp">
+    <input type="password" id="reg-pass" placeholder="Password">
+    <input type="password" id="reg-pass2" placeholder="Verifikasi Password">
+    <button class="btn-primary" id="register-btn">Daftar</button>
+    <button class="btn-secondary" id="show-login">Kembali ke Login</button>
   </div>
 </div>
 
+<!-- USER PANEL -->
 <div class="container hidden" id="user-panel">
   <header>
     <div style="display:flex;align-items:center;gap:8px">
@@ -58,6 +92,7 @@ button{padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:600
   <div class="card">
     <h2>Saldo Kamu</h2>
     <p class="balance" id="saldo-display">Rp 0</p>
+    <button class="btn-primary" id="topup-btn">Isi Saldo</button>
   </div>
 
   <div class="card">
@@ -65,6 +100,11 @@ button{padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:600
     <select id="product-select"></select>
     <button class="btn-primary" id="buy-btn">Beli Sekarang</button>
   </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content" id="modal-body"></div>
 </div>
 
 <!-- Firebase -->
@@ -86,112 +126,153 @@ const db = firebase.firestore();
 const ACCOUNTS = 'accounts';
 const PRODUCTS = 'products';
 
-const loginScreen = document.getElementById('login-screen');
-const userPanel = document.getElementById('user-panel');
-const emailInput = document.getElementById('email');
-const passInput = document.getElementById('password');
-const loginBtn = document.getElementById('login-btn');
-const registerBtn = document.getElementById('register-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const saldoDisplay = document.getElementById('saldo-display');
-const productSelect = document.getElementById('product-select');
-const welcome = document.getElementById('welcome');
+const loginScreen=document.getElementById('login-screen');
+const userPanel=document.getElementById('user-panel');
+const saldoDisplay=document.getElementById('saldo-display');
+const productSelect=document.getElementById('product-select');
+const welcome=document.getElementById('welcome');
+const modal=document.getElementById('modal');
+const modalBody=document.getElementById('modal-body');
 
-let currentUser = null;
-let unsubUser = null;
+let currentUser=null, unsubUser=null;
 
-/* ---- Helper ---- */
-function showPanel(show) {
+/* -------- Helper -------- */
+function showPanel(show){
   loginScreen.classList.toggle('hidden', show);
   userPanel.classList.toggle('hidden', !show);
 }
+function showModal(html){
+  modalBody.innerHTML=html;
+  modal.style.display='flex';
+}
+function closeModal(){modal.style.display='none';}
 
-/* ---- Register ---- */
-registerBtn.onclick = async function() {
-  const email = emailInput.value.trim();
-  const password = passInput.value.trim();
-  if(!email || !password) return alert("Isi email dan password!");
-  const name = email.split('@')[0];
-  const newUser = {
-    email: email,
-    password: password,
-    name: name,
-    wa: "",
-    saldo: 0,
-  };
-  await db.collection(ACCOUNTS).add(newUser);
-  alert("Akun berhasil dibuat! Silakan login.");
+/* -------- Switch between login/register -------- */
+document.getElementById('show-register').onclick=()=>{ 
+  document.getElementById('login-card').classList.add('hidden');
+  document.getElementById('register-card').classList.remove('hidden');
+};
+document.getElementById('show-login').onclick=()=>{ 
+  document.getElementById('register-card').classList.add('hidden');
+  document.getElementById('login-card').classList.remove('hidden');
 };
 
-/* ---- Login ---- */
-loginBtn.onclick = async function() {
-  const email = emailInput.value.trim();
-  const password = passInput.value.trim();
-  if(!email || !password) return alert("Isi email dan password!");
-  
-  const q = await db.collection(ACCOUNTS).where("email", "==", email).get();
-  if(q.empty) return alert("Akun tidak ditemukan!");
-  let user = null;
-  q.forEach(d => { if(d.data().password === password) user = {id:d.id, ...d.data()}; });
-  if(!user) return alert("Password salah!");
+/* -------- Register -------- */
+document.getElementById('register-btn').onclick=async()=>{
+  const name=document.getElementById('reg-name').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const wa=document.getElementById('reg-wa').value.trim();
+  const pass=document.getElementById('reg-pass').value.trim();
+  const pass2=document.getElementById('reg-pass2').value.trim();
 
-  currentUser = user;
-  welcome.innerText = "Halo, " + (user.name || user.email);
+  if(!name||!email||!wa||!pass||!pass2) return alert("Semua kolom wajib diisi!");
+  if(pass!==pass2) return alert("Password tidak sama!");
+
+  const dup=await db.collection(ACCOUNTS)
+    .where("email","==",email).get();
+  const dup2=await db.collection(ACCOUNTS)
+    .where("name","==",name).get();
+  const dup3=await db.collection(ACCOUNTS)
+    .where("wa","==",wa).get();
+
+  if(!dup.empty||!dup2.empty||!dup3.empty){
+    alert("Akun dengan nama/email/WA ini sudah terdaftar!");
+    return;
+  }
+
+  await db.collection(ACCOUNTS).add({name,email,wa,password:pass,saldo:0});
+  alert("Akun berhasil dibuat! Silakan login.");
+  document.getElementById('show-login').click();
+};
+
+/* -------- Login -------- */
+document.getElementById('login-btn').onclick=async()=>{
+  const identifier=document.getElementById('login-identifier').value.trim();
+  const pass=document.getElementById('login-password').value.trim();
+  if(!identifier||!pass) return alert("Isi semua kolom!");
+
+  const q=await db.collection(ACCOUNTS)
+    .where("password","==",pass).get();
+  let found=null;
+  q.forEach(doc=>{
+    const d=doc.data();
+    if(d.email===identifier || d.name===identifier) found={id:doc.id,...d};
+  });
+  if(!found) return alert("Akun tidak ditemukan atau password salah!");
+
+  currentUser=found;
+  welcome.innerText="Halo, "+(found.name||found.email);
   showPanel(true);
-  subscribeUser(user.id);
+  subscribeUser(found.id);
   loadProducts();
 };
 
-/* ---- Logout ---- */
-logoutBtn.onclick = function() {
-  if(unsubUser) unsubUser();
-  currentUser = null;
+/* -------- Logout -------- */
+document.getElementById('logout-btn').onclick=()=>{
+  if(unsubUser)unsubUser();
+  currentUser=null;
   showPanel(false);
 };
 
-/* ---- Realtime user listener ---- */
-function subscribeUser(id) {
-  if(unsubUser) unsubUser();
-  unsubUser = db.collection(ACCOUNTS).doc(id).onSnapshot(doc => {
-    const data = doc.data();
-    if(data) {
-      saldoDisplay.innerText = "Rp " + (data.saldo || 0).toLocaleString();
-    }
-  });
+/* -------- Realtime saldo -------- */
+function subscribeUser(id){
+  if(unsubUser)unsubUser();
+  unsubUser=db.collection(ACCOUNTS).doc(id)
+    .onSnapshot(doc=>{
+      const data=doc.data();
+      if(data) saldoDisplay.innerText="Rp "+(data.saldo||0).toLocaleString();
+    });
 }
 
-/* ---- Load Produk ---- */
-function loadProducts() {
-  db.collection(PRODUCTS).onSnapshot(snapshot => {
-    productSelect.innerHTML = "";
-    snapshot.forEach(doc => {
-      const p = doc.data();
-      const opt = document.createElement("option");
-      opt.value = doc.id;
-      opt.textContent = `${p.operator} - ${p.denom} (Rp ${p.price})`;
+/* -------- Produk -------- */
+function loadProducts(){
+  db.collection(PRODUCTS).onSnapshot(snap=>{
+    productSelect.innerHTML="";
+    snap.forEach(doc=>{
+      const p=doc.data();
+      const opt=document.createElement("option");
+      opt.value=doc.id;
+      opt.textContent=`${p.operator} - ${p.denom} (Rp ${p.price.toLocaleString()})`;
       productSelect.appendChild(opt);
     });
   });
 }
 
-/* ---- Beli Produk ---- */
-document.getElementById('buy-btn').onclick = async function() {
+/* -------- Beli Produk -------- */
+document.getElementById('buy-btn').onclick=async()=>{
   if(!currentUser) return alert("Login dulu!");
-  const productId = productSelect.value;
+  const productId=productSelect.value;
   if(!productId) return alert("Pilih produk!");
-
-  const productDoc = await db.collection(PRODUCTS).doc(productId).get();
-  const product = productDoc.data();
+  const pdoc=await db.collection(PRODUCTS).doc(productId).get();
+  const product=pdoc.data();
   if(!product) return alert("Produk tidak ditemukan!");
 
-  const userRef = db.collection(ACCOUNTS).doc(currentUser.id);
-  const userSnap = await userRef.get();
-  const userData = userSnap.data();
-  if(userData.saldo < product.price) return alert("Saldo tidak cukup!");
+  const userRef=db.collection(ACCOUNTS).doc(currentUser.id);
+  const userSnap=await userRef.get();
+  const user=userSnap.data();
+  if(user.saldo<product.price) return alert("Saldo tidak cukup!");
 
-  const newSaldo = userData.saldo - product.price;
-  await userRef.update({ saldo: newSaldo });
+  await userRef.update({saldo:user.saldo-product.price});
   alert(`Pembelian ${product.operator} - ${product.denom} berhasil!`);
+};
+
+/* -------- Isi Saldo Modal -------- */
+document.getElementById('topup-btn').onclick=()=>{
+  const html=`
+    <h3>Isi Saldo</h3>
+    <input type="number" id="topup-amount" placeholder="Masukkan nominal" min="1000">
+    <button class="btn-primary" id="send-topup">Kirim ke WhatsApp</button>
+    <button class="close-btn" onclick="closeModal()">Batal</button>
+  `;
+  showModal(html);
+  document.getElementById('send-topup').onclick=()=>{
+    const amount=document.getElementById('topup-amount').value.trim();
+    if(!amount||amount<=0) return alert("Masukkan nominal valid!");
+    const msg=`Halo Admin, saya ingin isi saldo sebesar Rp ${parseInt(amount).toLocaleString()} untuk akun ${(currentUser.name||currentUser.email)}.`;
+    const waLink=`https://wa.me/6285340725780?text=${encodeURIComponent(msg)}`;
+    window.open(waLink,'_blank');
+    closeModal();
+  };
 };
 </script>
 </body>
