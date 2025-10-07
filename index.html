@@ -22,14 +22,14 @@ h1,h2{margin:0;font-size:16px}
 p{margin:0;font-size:13px;color:var(--muted)}
 .card{background:var(--card);border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:var(--shadow)}
 input,select{width:100%;padding:12px;margin:6px 0;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;font-size:14px}
-button{padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;width:100%;margin-top:6px}
+button{padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;width:100%;margin-top:6px}
 .btn-primary{background:var(--accent);color:white}
 .btn-secondary{background:#eef6ff;color:var(--accent)}
 .btn-danger{background:var(--danger);color:white}
 .balance{font-weight:700;color:var(--accent);font-size:18px}
 .hidden{display:none}
 
-/* Modern modal */
+/* Modal */
 .modal{
   position:fixed;top:0;left:0;width:100%;height:100%;
   background:rgba(0,0,0,0.4);
@@ -49,6 +49,12 @@ button{padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:600
 }
 .modal h3{text-align:center;color:var(--accent);margin-bottom:12px}
 .modal .close-btn{background:#eee;color:#333}
+
+/* Kategori & Produk */
+.category-card{margin-bottom:12px;cursor:pointer;padding:12px;background:var(--card);border-radius:12px;box-shadow:var(--shadow)}
+.category-title{display:flex;justify-content:space-between;align-items:center;font-weight:700;color:var(--accent)}
+.product-item{padding:8px 12px;margin:6px 0;border-radius:8px;background:#f1f5f9;display:flex;justify-content:space-between;align-items:center}
+.product-actions button{margin-left:6px}
 </style>
 </head>
 <body>
@@ -62,6 +68,7 @@ button{padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:600
     <button class="btn-primary" id="login-btn">Masuk</button>
     <p>Belum punya akun?</p>
     <button class="btn-secondary" id="show-register">Daftar</button>
+    <button class="btn-secondary" id="forgot-pass">Lupa Password</button>
   </div>
 
   <div class="card hidden" id="register-card">
@@ -95,11 +102,7 @@ button{padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:600
     <button class="btn-primary" id="topup-btn">Isi Saldo</button>
   </div>
 
-  <div class="card">
-    <h2>Beli Produk</h2>
-    <select id="product-select"></select>
-    <button class="btn-primary" id="buy-btn">Beli Sekarang</button>
-  </div>
+  <div id="category-container"></div>
 </div>
 
 <!-- MODAL -->
@@ -107,7 +110,7 @@ button{padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:600
   <div class="modal-content" id="modal-body"></div>
 </div>
 
-<!-- Firebase -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore-compat.js"></script>
 <script>
@@ -121,22 +124,24 @@ const firebaseConfig = {
   measurementId: "G-18DVM3HBNY"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db=firebase.firestore();
 
-const ACCOUNTS = 'accounts';
-const PRODUCTS = 'products';
+const ACCOUNTS='accounts';
+const CATEGORIES='categories';
+const PRODUCTS='products';
+const TRANSACTIONS='transactions';
 
 const loginScreen=document.getElementById('login-screen');
 const userPanel=document.getElementById('user-panel');
-const saldoDisplay=document.getElementById('saldo-display');
-const productSelect=document.getElementById('product-select');
 const welcome=document.getElementById('welcome');
+const categoryContainer=document.getElementById('category-container');
+const saldoDisplay=document.getElementById('saldo-display');
 const modal=document.getElementById('modal');
 const modalBody=document.getElementById('modal-body');
 
 let currentUser=null, unsubUser=null;
 
-/* -------- Helper -------- */
+/* -------- Helpers -------- */
 function showPanel(show){
   loginScreen.classList.toggle('hidden', show);
   userPanel.classList.toggle('hidden', !show);
@@ -147,34 +152,32 @@ function showModal(html){
 }
 function closeModal(){modal.style.display='none';}
 
-/* -------- Switch between login/register -------- */
-document.getElementById('show-register').onclick=()=>{ 
+/* -------- Switch login/register -------- */
+document.getElementById('show-register').onclick=()=>{
   document.getElementById('login-card').classList.add('hidden');
   document.getElementById('register-card').classList.remove('hidden');
 };
-document.getElementById('show-login').onclick=()=>{ 
+document.getElementById('show-login').onclick=()=>{
   document.getElementById('register-card').classList.add('hidden');
   document.getElementById('login-card').classList.remove('hidden');
 };
+document.getElementById('forgot-pass').onclick=()=>{
+  const waLink='https://wa.me/6285340725780?text='+encodeURIComponent('Halo Admin, saya lupa password akun saya.');
+  window.open(waLink,'_blank');
+};
 
-/* -------- Register -------- */
+/* -------- Register & Login -------- */
 document.getElementById('register-btn').onclick=async()=>{
   const name=document.getElementById('reg-name').value.trim();
   const email=document.getElementById('reg-email').value.trim();
   const wa=document.getElementById('reg-wa').value.trim();
   const pass=document.getElementById('reg-pass').value.trim();
   const pass2=document.getElementById('reg-pass2').value.trim();
-
   if(!name||!email||!wa||!pass||!pass2) return alert("Semua kolom wajib diisi!");
   if(pass!==pass2) return alert("Password tidak sama!");
-
-  const dup=await db.collection(ACCOUNTS)
-    .where("email","==",email).get();
-  const dup2=await db.collection(ACCOUNTS)
-    .where("name","==",name).get();
-  const dup3=await db.collection(ACCOUNTS)
-    .where("wa","==",wa).get();
-
+  const dup=await db.collection(ACCOUNTS).where("email","==",email).get();
+  const dup2=await db.collection(ACCOUNTS).where("name","==",name).get();
+  const dup3=await db.collection(ACCOUNTS).where("wa","==",wa).get();
   if(!dup.empty||!dup2.empty||!dup3.empty){
     alert("Akun dengan nama/email/WA ini sudah terdaftar!");
     return;
@@ -185,38 +188,33 @@ document.getElementById('register-btn').onclick=async()=>{
   document.getElementById('show-login').click();
 };
 
-/* -------- Login -------- */
 document.getElementById('login-btn').onclick=async()=>{
   const identifier=document.getElementById('login-identifier').value.trim();
   const pass=document.getElementById('login-password').value.trim();
   if(!identifier||!pass) return alert("Isi semua kolom!");
-
-  const q=await db.collection(ACCOUNTS)
-    .where("password","==",pass).get();
+  const q=await db.collection(ACCOUNTS).where("password","==",pass).get();
   let found=null;
   q.forEach(doc=>{
     const d=doc.data();
-    if(d.email===identifier || d.name===identifier) found={id:doc.id,...d};
+    if(d.email===identifier||d.name===identifier) found={id:doc.id,...d};
   });
   if(!found) return alert("Akun tidak ditemukan atau password salah!");
-
   currentUser=found;
   welcome.innerText="Halo, "+(found.name||found.email);
   showPanel(true);
   subscribeUser(found.id);
-  loadProducts();
+  loadCategories();
 };
 
-/* -------- Logout -------- */
 document.getElementById('logout-btn').onclick=()=>{
-  if(unsubUser)unsubUser();
+  if(unsubUser) unsubUser();
   currentUser=null;
   showPanel(false);
 };
 
 /* -------- Realtime saldo -------- */
 function subscribeUser(id){
-  if(unsubUser)unsubUser();
+  if(unsubUser) unsubUser();
   unsubUser=db.collection(ACCOUNTS).doc(id)
     .onSnapshot(doc=>{
       const data=doc.data();
@@ -224,25 +222,73 @@ function subscribeUser(id){
     });
 }
 
-/* -------- Produk -------- */
-function loadProducts(){
-  db.collection(PRODUCTS).onSnapshot(snap=>{
-    productSelect.innerHTML="";
-    snap.forEach(doc=>{
-      const p=doc.data();
-      const opt=document.createElement("option");
-      opt.value=doc.id;
-      opt.textContent=`${p.operator} - ${p.denom} (Rp ${p.price.toLocaleString()})`;
-      productSelect.appendChild(opt);
+/* -------- Load Kategori & Produk -------- */
+function loadCategories(){
+  db.collection(CATEGORIES).onSnapshot(snapshot=>{
+    categoryContainer.innerHTML='';
+    snapshot.forEach(doc=>{
+      const cat=doc.data();
+      const catCard=document.createElement('div');
+      catCard.classList.add('category-card');
+      catCard.innerHTML=`
+        <div class="category-title">
+          <span>${cat.name}</span>
+        </div>
+        <div class="products-container hidden" id="products-${doc.id}"></div>
+      `;
+      categoryContainer.appendChild(catCard);
+
+      catCard.querySelector('.category-title').onclick=()=>{
+        const prodContainer=document.getElementById(`products-${doc.id}`);
+        if(prodContainer.classList.contains('hidden')){
+          prodContainer.classList.remove('hidden');
+          loadProductsByCategory(doc.id, prodContainer);
+        } else {
+          prodContainer.classList.add('hidden');
+        }
+      };
     });
   });
 }
 
-/* -------- Beli Produk -------- */
-document.getElementById('buy-btn').onclick=async()=>{
+function loadProductsByCategory(catId, container){
+  db.collection(PRODUCTS).where("categoryId","==",catId)
+    .onSnapshot(snapshot=>{
+      container.innerHTML='';
+      snapshot.forEach(doc=>{
+        const p=doc.data();
+        const item=document.createElement('div');
+        item.classList.add('product-item');
+        item.innerHTML=`
+          <span>${p.name} - ${p.denom} (Rp ${p.price.toLocaleString()})</span>
+          <div class="product-actions">
+            <button class="btn-primary buy-btn" data-id="${doc.id}">Beli</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+      container.querySelectorAll('.buy-btn').forEach(btn=>{
+        btn.onclick=()=>buyProductPrompt(btn.dataset.id);
+      });
+    });
+}
+
+/* -------- Beli Produk dengan Input Nomor Pelanggan -------- */
+function buyProductPrompt(productId){
+  const html=`
+    <h3>Masukkan Nomor/ID Pelanggan</h3>
+    <input type="text" id="customer-id" placeholder="Nomor atau ID">
+    <button class="btn-primary" id="confirm-buy">Beli</button>
+    <button class="close-btn" onclick="closeModal()">Batal</button>
+  `;
+  showModal(html);
+  document.getElementById('confirm-buy').onclick=()=>buyProduct(productId);
+}
+
+async function buyProduct(productId){
+  const customerId=document.getElementById('customer-id').value.trim();
+  if(!customerId) return alert("Masukkan nomor/ID pelanggan!");
   if(!currentUser) return alert("Login dulu!");
-  const productId=productSelect.value;
-  if(!productId) return alert("Pilih produk!");
   const pdoc=await db.collection(PRODUCTS).doc(productId).get();
   const product=pdoc.data();
   if(!product) return alert("Produk tidak ditemukan!");
@@ -253,15 +299,29 @@ document.getElementById('buy-btn').onclick=async()=>{
   if(user.saldo<product.price) return alert("Saldo tidak cukup!");
 
   await userRef.update({saldo:user.saldo-product.price});
-  alert(`Pembelian ${product.operator} - ${product.denom} berhasil!`);
-};
+
+  // Simpan transaksi ke Firebase untuk admin
+  await db.collection(TRANSACTIONS).add({
+    userId:currentUser.id,
+    userName:currentUser.name||currentUser.email,
+    productId:productId,
+    productName:product.name,
+    denom:product.denom,
+    price:product.price,
+    customerId:customerId,
+    timestamp:firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  alert(`Pembelian ${product.name} - ${product.denom} berhasil!`);
+  closeModal();
+}
 
 /* -------- Isi Saldo Modal -------- */
 document.getElementById('topup-btn').onclick=()=>{
   const html=`
     <h3>Isi Saldo</h3>
     <input type="number" id="topup-amount" placeholder="Masukkan nominal" min="1000">
-    <button class="btn-primary" id="send-topup">Kirim ke WhatsApp</button>
+    <button class="btn-primary" id="send-topup">Lanjutkan</button>
     <button class="close-btn" onclick="closeModal()">Batal</button>
   `;
   showModal(html);
@@ -274,6 +334,16 @@ document.getElementById('topup-btn').onclick=()=>{
     closeModal();
   };
 };
+
+/* -------- Tambah Kategori & Produk (Admin Functions) -------- */
+async function addCategory(name){
+  if(!name) return;
+  await db.collection(CATEGORIES).add({name});
+}
+async function addProduct(name, denom, price, categoryId){
+  if(!name||!denom||!price||!categoryId) return;
+  await db.collection(PRODUCTS).add({name,denom,price:Number(price),categoryId});
+}
 </script>
 </body>
 </html>
